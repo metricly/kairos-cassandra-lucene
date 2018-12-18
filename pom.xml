@@ -4,7 +4,7 @@
 	
 	<groupId>com.metricly</groupId>
 	<artifactId>cassandra-lucene</artifactId>
-	<version>0.2</version>
+	<version>0.3</version>
 	<packaging>jar</packaging>
 	
 	<name>cassandra-lucene</name>
