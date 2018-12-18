@@ -1,0 +1,146 @@
+version: '2.1'
+services:
+ 
+###############################
+ cassandra0:
+  build:
+    context: ./cassandra-lucene-index
+    dockerfile: Dockerfile
+  container_name: cassandra0
+  volumes:
+   - ./cassandra-lucene-index/jvm.options:/etc/cassandra/jvm.options
+  ports:
+   - 9042:9042
+   - 9160:9160
+   - 7199:7199
+   - 8778:8778
+  environment:
+   - CASSANDRA_SEEDS=cassandra0
+   - CASSANDRA_START_RPC=true
+   - CASSANDRA_CLUSTER_NAME=test_cluster
+  ulimits:
+    memlock: -1
+    nproc: 32768
+    nofile: 100000
+
+###############################
+ cassandra1:
+  build:
+    context: ./cassandra-lucene-index
+    dockerfile: Dockerfile
+  container_name: cassandra1
+  volumes:
+   - ./cassandra-lucene-index/jvm.options:/etc/cassandra/jvm.options
+  command: bash -c 'sleep 30;  /docker-entrypoint.sh cassandra -f'
+  environment:
+   - CASSANDRA_SEEDS=cassandra0
+   - CASSANDRA_CLUSTER_NAME=test_cluster
+   - CASSANDRA_BROADCAST_ADDRESS=auto
+  ulimits:
+    memlock: -1
+    nproc: 32768
+    nofile: 100000
+ 
+###############################
+ cassandra2:
+  build:
+    context: ./cassandra-lucene-index
+    dockerfile: Dockerfile
+  container_name: cassandra2
+  volumes:
+   - ./cassandra-lucene-index/jvm.options:/etc/cassandra/jvm.options
+  ports:
+   - 9242:9042
+  command: bash -c 'sleep 120;  /docker-entrypoint.sh cassandra -f'
+  depends_on:
+    - cassandra0
+  environment:
+   - CASSANDRA_SEEDS=cassandra0
+   - CASSANDRA_CLUSTER_NAME=test_cluster
+  ulimits:
+    memlock: -1
+    nproc: 32768
+    nofile: 100000
+
+###############################
+# uncomment to add/remove a 4th node to the cluster
+###############################
+# cassandra3:
+#  build:
+#    context: ./cassandra-lucene-index
+#    dockerfile: Dockerfile
+#  container_name: cassandra3
+#  volumes:
+#   - ./cassandra-lucene-index/jvm.options:/etc/cassandra/jvm.options
+#  ports:
+#   - 9243:9042
+#  command: bash -c 'sleep 120;  /docker-entrypoint.sh cassandra -f'
+#  depends_on:
+#    - cassandra0
+#  environment:
+#   - CASSANDRA_SEEDS=cassandra0
+#   - CASSANDRA_CLUSTER_NAME=test_cluster
+#  ulimits:
+#    memlock: -1
+#    nproc: 32768
+#    nofile: 100000
+
+#############################
+ kairosdb:
+  image: kairosdb:Metricly-v0.5
+  container_name: kairosdb
+  volumes:
+   - ./kairosdb/kairosdb.properties:/opt/kairosdb/conf/kairosdb.properties
+   - ./kairosdb/kairosdb-env.sh:/opt/kairosdb/bin/kairosdb-env.sh
+  entrypoint: bash -c 'sleep 180; /entrypoint'
+  ports:
+   - "8083:8080"
+   - "4000:4000"
+   - "4001:4001"
+  depends_on:
+   - cassandra0
+ 
+#############################
+ kairosdbindex:
+  image: cassandra:3.11
+  container_name: kairosdbindex
+  volumes:
+   - ./kairosdb/index.cql:/index.cql
+  entrypoint: bash -c 'sleep 200; cqlsh --request-timeout=60  -k kairosdb -f /index.cql cassandra0'
+  depends_on:
+   - cassandra0
+
+#############################
+# kairosdbindex-tests
+# simple set of queries to make
+# sure things are working
+#############################
+ kairosdbindex-tests:
+  image: node
+  container_name: kairosdbindex-test
+  volumes:
+   - ./kairosdbindex-tests/tests.js:/tests.js
+   - ./kairosdbindex-tests/package.json:/package.json
+  #entrypoint: bash -c 'sleep 300; node tests.js'
+  entrypoint: bash -c 'sleep 300; cd / && npm install && node tests.js'
+  depends_on:
+   - kairosdb
+
+
+##############################
+# grafana:
+#  image: grafana/grafana:master
+#  container_name: grafana
+#  ports:
+#   - 3000:3000
+
+##############################
+# portainer:
+#  container_name: portainer
+#  image: portainer/portainer
+#  command:  --no-auth
+#  volumes:
+#    - /var/run/docker.sock:/var/run/docker.sock
+#  ports:
+#    - 9000:9000
+#

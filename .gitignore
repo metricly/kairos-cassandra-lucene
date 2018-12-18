@@ -11,3 +11,4 @@ out/*
 log/*
 kairosdb.properties
 .DS_Store
+testsAT/kairosdbindex-tests/node_modules

@@ -1,0 +1,15 @@
+{
+  "name": "kcli",
+  "version": "0.0.1",
+  "description": "test scripts for kairos-cassandra-lucene plugin",
+  "main": "tests.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "kairosdb": "0.0.3",
+    "moment": "^2.23.0"
+  }
+}

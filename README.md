@@ -26,4 +26,6 @@ And that's it, if you add that plugin to your query, kairosdb will execute the c
 as they become available.  This is the behavior found in the default CQLFilteredRowKeyIterator.
 
 # Release History:
+- 0.2 AT Tests & Cleanup
+
 - 0.1 Initial release 
