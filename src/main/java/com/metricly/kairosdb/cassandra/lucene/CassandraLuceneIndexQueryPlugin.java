@@ -83,11 +83,11 @@ public class CassandraLuceneIndexQueryPlugin implements QueryPlugin, CassandraRo
 
     private List<ResultSetFuture> getResultSetFutures(DatastoreMetricQuery query) {
         List<ResultSetFuture> resultSetFutures = new ArrayList<>();
-        String cql = m_schema.ROW_KEY_QUERY;
 
         List<Long> queryKeyList = createQueryKeyList(query.getName(), query.getStartTime(), query.getEndTime());
         for (Long keyTime : queryKeyList) {
 
+            String cql = m_schema.ROW_KEY_QUERY;
             boolean hasTags = query.getTags().size() > 0;
             Object[] params = new Object[]{query.getName(), new Date(keyTime)};
             if(hasTags) {
