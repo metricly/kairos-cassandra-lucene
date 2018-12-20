@@ -87,7 +87,9 @@ services:
 
 #############################
  kairosdb:
-  image: kairosdb:Metricly-v0.5
+  build:
+    context: ./kairosdb
+    dockerfile: Dockerfile
   container_name: kairosdb
   volumes:
    - ./kairosdb/kairosdb.properties:/opt/kairosdb/conf/kairosdb.properties

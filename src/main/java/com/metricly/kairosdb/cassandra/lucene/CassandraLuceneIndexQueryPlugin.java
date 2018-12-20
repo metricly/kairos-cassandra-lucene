@@ -60,17 +60,19 @@ public class CassandraLuceneIndexQueryPlugin implements QueryPlugin, CassandraRo
             while(m_resultSets.hasNext()) {
 
                 ResultSet next = m_resultSets.next();
-                Row one = next.one();
-                if(one == null) {
-                    // empty results
-                    break;
-                }
-                DataPointsRowKey dataPointsRowKey = new DataPointsRowKey(query.getName(),
-                        one.getTimestamp(0).getTime(),
-                        one.getString(1),
-                        new TreeMap<>(one.getMap(2, String.class, String.class)));
+                while(!next.isExhausted()) {
+                    Row one = next.one();
+                    if(one == null) {
+                        // empty results
+                        break;
+                    }
+                    DataPointsRowKey dataPointsRowKey = new DataPointsRowKey(query.getName(),
+                            one.getTimestamp(0).getTime(),
+                            one.getString(1),
+                            new TreeMap<>(one.getMap(2, String.class, String.class)));
 
-                rowKeys.add(dataPointsRowKey);
+                    rowKeys.add(dataPointsRowKey);
+                }
             }
         } catch (InterruptedException e) {
             LOG.error("row_keys_index query interrupted", e) ;

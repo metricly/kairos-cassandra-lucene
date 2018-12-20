@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+rep="replication_factor"
+
+for e in `printenv | grep KAIROSDB`; do
+  # Preserve true underscores
+  key=`echo "$e" | sed 's%=.*%%;s%__%#%g'`
+  key=`echo "$key" | sed "s%_%.%g"`
+  key=`echo "$key" | sed "s%#%_%g"`
+
+  key=`echo "$key" | tr 'A-Z' 'a-z'`
+  val=`echo "$e" | sed "s%.*=%%"`
+
+
+  echo "Config: $key=$val"
+
+  if [ "`grep "$key" /opt/kairosdb/conf/kairosdb.properties`" ]; then
+    sed -i -E "s%^#$key.*|^$key.*%$key=$val%" /opt/kairosdb/conf/kairosdb.properties
+  elif [[ "${key}" = *"cassandra.replication_factor"* ]]; then
+    sed -i "s%'${rep}' :.*\}%'${rep}' : $val}%g" /opt/kairosdb/conf/kairosdb.properties
+  elif [[ "${key}" = *"cassandra.replication_class"* ]]; then
+    sed -i "s%'class': .*,%'class': '$val',%g" /opt/kairosdb/conf/kairosdb.properties
+  elif [[ "${key}" = *"cassandra.replication_strategy" ]]; then
+    sed -i "s%,'replication_factor'%,'$val'%g" /opt/kairosdb/conf/kairosdb.properties
+    rep="$val"
+  else
+    echo "$key=$val" >> /opt/kairosdb/conf/kairosdb.properties
+  fi
+done
+
+cd /opt/kairosdb/bin
+./kairosdb.sh run
