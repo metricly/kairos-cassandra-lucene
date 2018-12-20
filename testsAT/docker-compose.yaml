@@ -94,7 +94,7 @@ services:
   volumes:
    - ./kairosdb/kairosdb.properties:/opt/kairosdb/conf/kairosdb.properties
    - ./kairosdb/kairosdb-env.sh:/opt/kairosdb/bin/kairosdb-env.sh
-  entrypoint: bash -c 'sleep 1; /entrypoint'
+  entrypoint: bash -c 'sleep 180; /entrypoint'
   ports:
    - "8083:8080"
    - "4000:4000"

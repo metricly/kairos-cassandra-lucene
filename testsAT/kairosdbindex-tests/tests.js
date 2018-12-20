@@ -1,7 +1,7 @@
 var 
   moment = require('moment'),
   kdb = require('kairosdb'),
-  client = kdb.init('localhost', 8083, {"debug": false});
+  client = kdb.init('localhost', 8080, {"debug": false});
 
 async function getVersion() {
     return new Promise(function(resolve, reject) {
