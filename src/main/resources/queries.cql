@@ -18,7 +18,7 @@ query row_keys
 CREATE CUSTOM INDEX row_keys_index ON row_keys ()
 USING 'com.stratio.cassandra.lucene.Index'
 WITH OPTIONS = {
-  'refresh_seconds': '1',
+  'refresh_seconds': '30',
   'schema': '{
      fields: {
         metric: {type: "string"},
